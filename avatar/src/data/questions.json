@@ -1,0 +1,514 @@
+[
+  {
+    "id": "weekend_vibe",
+    "question": "Your ideal Bangalore weekend?",
+    "subtitle": "Be honest. No judgment.",
+    "options": [
+      {
+        "id": "q1_a",
+        "label": "Cafe hopping with one iced coffee lasting 4 hours",
+        "subtitle": "The laptop is open. Nothing is getting done.",
+        "emoji": "☕",
+        "traits": {
+          "aesthetic": ["cozy", "cafe-core"],
+          "energy": ["calm", "caffeinated-by-habit"],
+          "props": ["laptop", "headphones", "iced coffee"],
+          "environment": ["cafe", "window-seat"],
+          "lifestyle": ["slow-living", "caffeinated-by-habit"],
+          "fashion": ["oversized tee", "headphones-as-jewelry"]
+        }
+      },
+      {
+        "id": "q1_b",
+        "label": "Cubbon Park + noise cancelling + sad playlist",
+        "subtitle": "Peak healing era. The trees understand you.",
+        "emoji": "🌳",
+        "traits": {
+          "aesthetic": ["nature", "soft"],
+          "energy": ["introverted", "zen"],
+          "props": ["headphones", "water bottle"],
+          "environment": ["park"],
+          "lifestyle": ["digital-detox-curious", "solo-dweller"],
+          "fashion": ["comfortable earth tones", "sneakers"]
+        }
+      },
+      {
+        "id": "q1_c",
+        "label": "Indiranagar rooftop bar until 1am",
+        "subtitle": "The pre-drinks were at 8. You're still going.",
+        "emoji": "🌙",
+        "traits": {
+          "aesthetic": ["urban", "nightlife"],
+          "energy": ["social", "night-owl"],
+          "props": ["cocktail", "phone"],
+          "environment": ["rooftop", "bar"],
+          "lifestyle": ["nightlife-regular", "people-person"],
+          "fashion": ["curated going-out look", "statement piece"]
+        }
+      },
+      {
+        "id": "q1_d",
+        "label": "Hackathon or side-project sprint at home",
+        "subtitle": "MVP by Sunday. Maybe. The README is ready.",
+        "emoji": "💻",
+        "traits": {
+          "aesthetic": ["minimal", "builder"],
+          "energy": ["hustler", "night-owl"],
+          "props": ["laptop", "red bull", "cold coffee"],
+          "environment": ["home-office", "home"],
+          "lifestyle": ["side-project-hoarder", "builder-mode"],
+          "fashion": ["startup merch", "comfort-maximized"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "commute",
+    "question": "Your Bangalore commute strategy?",
+    "subtitle": "Choose your fighter.",
+    "options": [
+      {
+        "id": "q2_a",
+        "label": "Namma Metro + ANC headphones + pretending I'm in a movie",
+        "subtitle": "The journey is part of the character arc.",
+        "emoji": "🚇",
+        "traits": {
+          "aesthetic": ["urban", "minimal"],
+          "energy": ["introverted", "calm"],
+          "props": ["headphones", "metro card", "phone"],
+          "environment": ["metro", "urban transit"],
+          "lifestyle": ["metro-pilled", "noise-sensitive"],
+          "fashion": ["ANC headphones permanent", "functional minimalist"]
+        }
+      },
+      {
+        "id": "q2_b",
+        "label": "Auto negotiation expert. 10 extra rupees? Never.",
+        "subtitle": "This is not about the money. It is about the principle.",
+        "emoji": "🛺",
+        "traits": {
+          "aesthetic": ["local", "chaotic"],
+          "energy": ["bold", "street-smart"],
+          "props": ["phone", "exact change ready"],
+          "environment": ["street", "local roads"],
+          "lifestyle": ["street-savvy", "time-optimist"],
+          "fashion": ["whatever was clean", "practical"]
+        }
+      },
+      {
+        "id": "q2_c",
+        "label": "Work from cafe near home. Commute is a myth.",
+        "subtitle": "The commute is 4 minutes. You're still late.",
+        "emoji": "🏠",
+        "traits": {
+          "aesthetic": ["cozy", "cafe-core"],
+          "energy": ["calm", "avoidant"],
+          "props": ["laptop", "coffee"],
+          "environment": ["cafe", "home"],
+          "lifestyle": ["location-independent", "WFH-maximalist"],
+          "fashion": ["laptop-bag chic", "ready-for-cafe"]
+        }
+      },
+      {
+        "id": "q2_d",
+        "label": "Company shuttle. My LinkedIn says 'commuter-coded'.",
+        "subtitle": "You've accepted this. There is peace in acceptance.",
+        "emoji": "🚌",
+        "traits": {
+          "aesthetic": ["corporate", "suburban"],
+          "energy": ["coping", "tired"],
+          "props": ["laptop", "work bag"],
+          "environment": ["office", "suburban"],
+          "lifestyle": ["corporate-commuter", "podcast-dependent"],
+          "fashion": ["business casual with dead eyes", "office-ready"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "late_night",
+    "question": "It's 11pm on a Tuesday. You're...",
+    "subtitle": "Tell me your truth.",
+    "options": [
+      {
+        "id": "q3_a",
+        "label": "Debugging a prod bug. Again. In the dark.",
+        "subtitle": "The Slack message said 'quick fix.' It was not.",
+        "emoji": "🐛",
+        "traits": {
+          "aesthetic": ["dark", "technical"],
+          "energy": ["night-owl", "stressed"],
+          "props": ["laptop", "cold coffee", "error logs"],
+          "environment": ["home-office"],
+          "lifestyle": ["always-on-call", "work-life-blur"],
+          "fashion": ["same hoodie day 3", "hair tie on wrist"]
+        }
+      },
+      {
+        "id": "q3_b",
+        "label": "Making elaborate pasta like I have my life together",
+        "subtitle": "Nobody asked for this level of sauce work on a Tuesday.",
+        "emoji": "🍝",
+        "traits": {
+          "aesthetic": ["cozy", "domestic"],
+          "energy": ["calm", "creative"],
+          "props": ["apron", "wine maybe", "good playlist"],
+          "environment": ["kitchen", "home"],
+          "lifestyle": ["solo-chef-era", "comfort-seeker"],
+          "fashion": ["home clothes elevated", "apron optional"]
+        }
+      },
+      {
+        "id": "q3_c",
+        "label": "Cafe. Notion doc. Side project that'll launch 'next month'",
+        "subtitle": "The doc has 47 pages. The code has 3 lines.",
+        "emoji": "📝",
+        "traits": {
+          "aesthetic": ["cafe-core", "aspirational"],
+          "energy": ["hustler", "caffeinated-by-habit", "night-owl"],
+          "props": ["laptop", "coffee", "notion"],
+          "environment": ["cafe"],
+          "lifestyle": ["chronic-planner", "side-project-hoarder"],
+          "fashion": ["cafe-core aesthetic", "laptop-first outfit"]
+        }
+      },
+      {
+        "id": "q3_d",
+        "label": "Watching something with chai. Rotting is valid self-care.",
+        "subtitle": "This is recovery. This is medicine. This is necessary.",
+        "emoji": "🍵",
+        "traits": {
+          "aesthetic": ["cozy", "soft"],
+          "energy": ["calm", "introverted"],
+          "props": ["chai", "blanket", "remote"],
+          "environment": ["home", "couch"],
+          "lifestyle": ["screen-rotting-as-recovery", "cozy-maximalist"],
+          "fashion": ["home uniform", "comfort is the vibe"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "rain_relationship",
+    "question": "Your relationship with Bangalore rain?",
+    "subtitle": "Deeply personal question.",
+    "options": [
+      {
+        "id": "q4_a",
+        "label": "Romanticize it instantly. Reel pending.",
+        "subtitle": "It's been 4 minutes and you've already got a caption.",
+        "emoji": "🌧️",
+        "traits": {
+          "aesthetic": ["aesthetic", "rain-coded"],
+          "energy": ["observant", "creative"],
+          "props": ["camera", "coffee", "journal"],
+          "environment": ["cafe", "window-seat"],
+          "lifestyle": ["content-creator-brain", "rain-romanticizer"],
+          "fashion": ["monsoon-ready but make it aesthetic", "earth tones in rain"]
+        }
+      },
+      {
+        "id": "q4_b",
+        "label": "Furious. My plans. My shoes. My dignity.",
+        "subtitle": "The weather app said 20% chance. You trusted it.",
+        "emoji": "😤",
+        "traits": {
+          "aesthetic": ["chaotic", "realistic"],
+          "energy": ["bold", "expressive"],
+          "props": ["ruined sneakers", "dripping bag"],
+          "environment": ["street", "flooded road"],
+          "lifestyle": ["pragmatist", "plans-enjoyer"],
+          "fashion": ["ruined outfit", "soaked sneakers"]
+        }
+      },
+      {
+        "id": "q4_c",
+        "label": "Cozy excuse to cancel plans guilt-free",
+        "subtitle": "You texted 'the rain is too much' while being inside already.",
+        "emoji": "🛋️",
+        "traits": {
+          "aesthetic": ["cozy", "soft"],
+          "energy": ["introverted", "avoidant"],
+          "props": ["blanket", "book", "hot drink"],
+          "environment": ["home", "bedroom"],
+          "lifestyle": ["plan-canceler", "introvert-in-denial"],
+          "fashion": ["pajamas all day justified", "blanket as cape"]
+        }
+      },
+      {
+        "id": "q4_d",
+        "label": "Petrichor + bittersweet feelings + existential text draft",
+        "subtitle": "You sent the text. You unsent it. The feeling remains.",
+        "emoji": "✍️",
+        "traits": {
+          "aesthetic": ["soft", "rain-coded", "melancholic"],
+          "energy": ["introverted", "sensitive"],
+          "props": ["journal", "tea", "unsent messages"],
+          "environment": ["window-seat", "bedroom"],
+          "lifestyle": ["overthinker", "journal-haver"],
+          "fashion": ["soft aesthetics", "layered for mood"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "neighborhood",
+    "question": "Which Bangalore neighborhood is your spiritual home?",
+    "subtitle": "You know the answer already.",
+    "options": [
+      {
+        "id": "q5_a",
+        "label": "Indiranagar – brunches, rooftops, main character moments",
+        "subtitle": "Every weekend is content. Every Tuesday is recovery.",
+        "emoji": "🥂",
+        "traits": {
+          "aesthetic": ["nightlife", "trendy", "urban"],
+          "energy": ["social", "night-owl"],
+          "props": ["cocktail", "phone camera"],
+          "environment": ["rooftop", "cafe", "bar"],
+          "lifestyle": ["nightlife-regular", "brunch-person"],
+          "fashion": ["curated effortless", "trendy minimalist"]
+        }
+      },
+      {
+        "id": "q5_b",
+        "label": "Koramangala – startups, networking, 'disruption'",
+        "subtitle": "You have a LinkedIn bio that uses the word 'ecosystem'.",
+        "emoji": "🚀",
+        "traits": {
+          "aesthetic": ["startup", "builder"],
+          "energy": ["hustler", "social"],
+          "props": ["laptop", "pitch deck", "coffee"],
+          "environment": ["co-working", "cafe", "startup office"],
+          "lifestyle": ["startup-adjacent", "networking-regular"],
+          "fashion": ["startup merch clean sneakers", "founder casual"]
+        }
+      },
+      {
+        "id": "q5_c",
+        "label": "Whitefield/Marathahalli – tech parks, traffic, survival",
+        "subtitle": "The commute has broken you. You are at peace now.",
+        "emoji": "🏢",
+        "traits": {
+          "aesthetic": ["corporate", "suburban"],
+          "energy": ["coping", "tired"],
+          "props": ["laptop", "metro card", "work badge"],
+          "environment": ["office", "tech park", "suburban"],
+          "lifestyle": ["corporate-commuter", "suburban-survivor"],
+          "fashion": ["business casual with dead eyes", "office bag"]
+        }
+      },
+      {
+        "id": "q5_d",
+        "label": "Jayanagar/JP Nagar – filter coffee, peace, actual life",
+        "subtitle": "You've escaped the hustle. You're winning.",
+        "emoji": "🏡",
+        "traits": {
+          "aesthetic": ["local", "traditional", "cozy"],
+          "energy": ["calm", "grounded"],
+          "props": ["filter coffee", "newspaper maybe"],
+          "environment": ["darshini", "park", "local street"],
+          "lifestyle": ["local-first", "anti-hype"],
+          "fashion": ["classic comfort", "traditional modern"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "cafe_order",
+    "question": "Your cafe order says everything about you.",
+    "subtitle": "What is it?",
+    "options": [
+      {
+        "id": "q6_a",
+        "label": "Oat milk dalgona / specialty iced pour-over",
+        "subtitle": "You know what process notes are. You care.",
+        "emoji": "🧋",
+        "traits": {
+          "aesthetic": ["aesthetic", "cafe-core", "trendy"],
+          "energy": ["caffeinated-by-habit"],
+          "props": ["specialty coffee", "cafe vibes"],
+          "environment": ["third-wave cafe"],
+          "lifestyle": ["coffee-connoisseur", "aesthetic-enjoyer"],
+          "fashion": ["cafe-aesthetic outfit", "clean minimalist"]
+        }
+      },
+      {
+        "id": "q6_b",
+        "label": "Filter coffee. The original. No debate.",
+        "subtitle": "You have opinions about metal tumbler vs glass. Strong opinions.",
+        "emoji": "☕",
+        "traits": {
+          "aesthetic": ["traditional", "local"],
+          "energy": ["grounded"],
+          "props": ["filter coffee", "steel tumbler"],
+          "environment": ["darshini", "home"],
+          "lifestyle": ["tradition-keeper", "purist"],
+          "fashion": ["no-fuss classic", "timeless"]
+        }
+      },
+      {
+        "id": "q6_c",
+        "label": "Matcha latte. I'm in my wellness era.",
+        "subtitle": "The matcha era started after the burnout. Both ongoing.",
+        "emoji": "🍵",
+        "traits": {
+          "aesthetic": ["wellness", "aesthetic", "soft"],
+          "energy": ["calm", "intentional"],
+          "props": ["matcha", "reusable cup maybe"],
+          "environment": ["specialty cafe"],
+          "lifestyle": ["wellness-era", "trend-early-adopter"],
+          "fashion": ["muted tones", "wellness-core"]
+        }
+      },
+      {
+        "id": "q6_d",
+        "label": "Chai from the nearest darshini. Why pay 400?",
+        "subtitle": "You are the most rational person in this city.",
+        "emoji": "🫖",
+        "traits": {
+          "aesthetic": ["local", "practical"],
+          "energy": ["street-smart", "grounded"],
+          "props": ["chai", "small glass"],
+          "environment": ["darshini", "street"],
+          "lifestyle": ["value-maximizer", "street-wise"],
+          "fashion": ["practical everyday", "zero-effort chic"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "slack_style",
+    "question": "Your Slack message style?",
+    "subtitle": "This is your digital fingerprint.",
+    "options": [
+      {
+        "id": "q7_a",
+        "label": "Three paragraphs with full context and loom link",
+        "subtitle": "You were raised to communicate and you will not stop.",
+        "emoji": "📋",
+        "traits": {
+          "aesthetic": ["thorough", "corporate"],
+          "energy": ["anxious", "communicative"],
+          "props": ["laptop", "loom recording"],
+          "environment": ["office", "home-office"],
+          "lifestyle": ["over-communicator", "anxiety-pilled"],
+          "fashion": ["always-prepared look", "professional adjacent"]
+        }
+      },
+      {
+        "id": "q7_b",
+        "label": "Single word: 'noted'. Then disappears.",
+        "subtitle": "You're not rude. You're efficient. (You're a little rude.)",
+        "emoji": "😶",
+        "traits": {
+          "aesthetic": ["minimal", "mysterious"],
+          "energy": ["introverted", "detached"],
+          "props": ["nothing", "phone face-down"],
+          "environment": ["home", "anywhere quiet"],
+          "lifestyle": ["minimal-responder", "mysterious-by-accident"],
+          "fashion": ["all black everything", "effortlessly detached"]
+        }
+      },
+      {
+        "id": "q7_c",
+        "label": "Voice note at 11pm. Unhinged. Real.",
+        "subtitle": "Your thoughts cannot be contained in text. This is a gift.",
+        "emoji": "🎤",
+        "traits": {
+          "aesthetic": ["chaotic", "authentic"],
+          "energy": ["night-owl", "expressive"],
+          "props": ["phone", "voice memos"],
+          "environment": ["home", "late night kitchen"],
+          "lifestyle": ["audio-first", "chaotic-human"],
+          "fashion": ["whatever fits the chaos", "untucked always"]
+        }
+      },
+      {
+        "id": "q7_d",
+        "label": "Thread everything. I am not a monster.",
+        "subtitle": "You have opinions about information architecture. Valid ones.",
+        "emoji": "🧵",
+        "traits": {
+          "aesthetic": ["organized", "minimal"],
+          "energy": ["systematic", "intentional"],
+          "props": ["laptop", "organized tabs"],
+          "environment": ["office", "clean desk"],
+          "lifestyle": ["systems-thinker", "organized-chaos"],
+          "fashion": ["clean precise look", "functional aesthetic"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "startup_stance",
+    "question": "Your startup take?",
+    "subtitle": "No wrong answers. (There are wrong answers.)",
+    "options": [
+      {
+        "id": "q8_a",
+        "label": "Currently building something. Demo day TBD.",
+        "subtitle": "The idea has pivoted 3 times. The passion has not.",
+        "emoji": "⚡",
+        "traits": {
+          "aesthetic": ["builder", "startup"],
+          "energy": ["hustler", "optimistic"],
+          "props": ["laptop", "pitch deck", "whiteboard"],
+          "environment": ["cafe", "co-working", "home-office"],
+          "lifestyle": ["founder-mode", "demo-day-optimist"],
+          "fashion": ["startup merch non-ironic", "hoodie-pilled"]
+        }
+      },
+      {
+        "id": "q8_b",
+        "label": "Evaluating options. Due diligence. Strategist.",
+        "subtitle": "You have a spreadsheet. The spreadsheet has a version history.",
+        "emoji": "🤔",
+        "traits": {
+          "aesthetic": ["corporate", "minimal"],
+          "energy": ["cautious", "systematic"],
+          "props": ["spreadsheet", "research docs"],
+          "environment": ["office", "home-office"],
+          "lifestyle": ["strategist", "due-diligence-haver"],
+          "fashion": ["smart casual decisive", "clean professional"]
+        }
+      },
+      {
+        "id": "q8_c",
+        "label": "Employed but have a 47-page Notion doc 👀",
+        "subtitle": "The job pays the bills. The doc pays the soul.",
+        "emoji": "📄",
+        "traits": {
+          "aesthetic": ["aspirational", "cafe-core"],
+          "energy": ["dreamer", "night-owl"],
+          "props": ["laptop", "notion doc", "coffee"],
+          "environment": ["cafe", "home-office"],
+          "lifestyle": ["side-project-dreamer", "secretly-building"],
+          "fashion": ["corporate-day cafe-night", "laptop-bag dual-purpose"]
+        }
+      },
+      {
+        "id": "q8_d",
+        "label": "No thanks. Peace and paycheck. That's the dream.",
+        "subtitle": "You are mentally healthier than everyone in this quiz.",
+        "emoji": "🕊️",
+        "traits": {
+          "aesthetic": ["zen", "cozy"],
+          "energy": ["calm", "grounded"],
+          "props": ["filter coffee", "clear boundaries"],
+          "environment": ["home", "park"],
+          "lifestyle": ["work-life-boundary-haver", "enlightened-employee"],
+          "fashion": ["comfortable confident", "not-impressed-by-hustle"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "favourite_animal",
+    "question": "What's your favourite animal?",
+    "subtitle": "the spirit creature you'll become",
+    "inputType": "text",
+    "placeholder": "e.g. red panda, otter, owl…",
+    "options": []
+  }
+]

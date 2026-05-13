@@ -1,0 +1,480 @@
+═══════════════════════════════════════════════════════════════════════════════
+  BANGALORE AVATAR — REFACTOR TASK PLAN
+  ────────────────────────────────────────────────────────────────────────────
+  Goals:
+    1. Switch image generator from img2img (uses photo) → text-to-image (prompt only)
+    2. Remove photo upload entirely from the flow
+    3. Add a 9th quiz question: "What's your favourite animal?" (free-text input)
+    4. The character in the generated image becomes an anthropomorphic animal
+       wearing the aesthetic/style chosen in the quiz
+═══════════════════════════════════════════════════════════════════════════════
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PHASE 1 — BACKEND: switch ComfyUI to text-to-image
+═══════════════════════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/lib/comfyui-client.ts
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Remove `imageBuffer` / `imageFilename` / `denoise` from GenerateAvatarOptions
+  B. Delete the `uploadImage()` function (no longer needed)
+  C. Replace workflow: LoadImage + VAEEncode → EmptyLatentImage
+  D. KSampler denoise hardcoded to 1.0 (full generation from blank latent)
+  E. Drop `denoise` from BuildWorkflowOptions
+  F. Simplify `generateAvatar()` — no upload step
+
+REPLACE GenerateAvatarOptions with:
+    export interface GenerateAvatarOptions {
+      positivePrompt: string;
+      negativePrompt?: string;
+      width?: number;   // default 1024
+      height?: number;  // default 1024
+    }
+
+REPLACE BuildWorkflowOptions with:
+    interface BuildWorkflowOptions {
+      positivePrompt: string;
+      negativePrompt?: string;
+      width?: number;
+      height?: number;
+    }
+
+REPLACE buildWorkflow() body. New node graph:
+    "1" CheckpointLoaderSimple → MODEL, CLIP, VAE
+    "2" CLIPTextEncode (positive)
+    "3" CLIPTextEncode (negative)
+    "4" EmptyLatentImage (width × height)
+    "5" KSampler (denoise: 1.0, steps: 30, cfg: 7.0)
+    "6" VAEDecode
+    "7" SaveImage
+
+Concretely:
+    return {
+      "1": {
+        class_type: "CheckpointLoaderSimple",
+        inputs: { ckpt_name: "sd_xl_base_1.0_0.9vae.safetensors" },
+      },
+      "2": {
+        class_type: "CLIPTextEncode",
+        inputs: { text: positivePrompt, clip: ["1", 1] },
+      },
+      "3": {
+        class_type: "CLIPTextEncode",
+        inputs: {
+          text: negativePrompt ?? "blurry, deformed, ugly, low quality, watermark, text, nsfw",
+          clip: ["1", 1],
+        },
+      },
+      "4": {
+        class_type: "EmptyLatentImage",
+        inputs: { width, height, batch_size: 1 },
+      },
+      "5": {
+        class_type: "KSampler",
+        inputs: {
+          model:        ["1", 0],
+          positive:     ["2", 0],
+          negative:     ["3", 0],
+          latent_image: ["4", 0],
+          seed:         Math.floor(Math.random() * 999_999_999),
+          steps:        30,
+          cfg:          7.0,
+          sampler_name: "dpmpp_2m",
+          scheduler:    "karras",
+          denoise:      1.0,
+        },
+      },
+      "6": {
+        class_type: "VAEDecode",
+        inputs: { samples: ["5", 0], vae: ["1", 2] },
+      },
+      "7": {
+        class_type: "SaveImage",
+        inputs: { images: ["6", 0], filename_prefix: "bangalore_avatar" },
+      },
+    };
+
+REPLACE generateAvatar() with:
+    export async function generateAvatar({
+      positivePrompt,
+      negativePrompt,
+      width = 1024,
+      height = 1024,
+    }: GenerateAvatarOptions): Promise<GenerateAvatarResult> {
+      const workflow = buildWorkflow({ positivePrompt, negativePrompt, width, height });
+      const promptId = await queuePrompt(workflow);
+      const outputs = await waitForCompletion(promptId);
+
+      const saveNode = outputs["7"];
+      if (!saveNode?.images?.length) throw new Error("No output images");
+
+      const { filename, subfolder, type } = saveNode.images[0];
+      const resultBuffer = await fetchOutputImage(filename, subfolder, type);
+      return {
+        imageBuffer: resultBuffer,
+        imageUrl: `data:image/png;base64,${resultBuffer.toString("base64")}`,
+        filename,
+      };
+    }
+
+UPDATE saveNode lookup: outputs["8"] → outputs["7"] (SaveImage is now node 7)
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/pages/api/generate-avatar.ts
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Remove multipart parsing entirely (no more formidable)
+  B. Re-enable Next.js default JSON body parser
+  C. Accept JSON: { prompt: string, negative?: string }
+  D. Drop the `photo` requirement
+
+REPLACE the whole file with:
+
+    import type { NextApiRequest, NextApiResponse } from "next";
+    import { generateAvatar } from "@/lib/comfyui-client";
+
+    interface SuccessResponse {
+      success: true;
+      filename: string;
+      imageUrl: string;
+      imageBase64: string;
+    }
+    interface ErrorResponse { error: string }
+    type ApiResponse = SuccessResponse | ErrorResponse;
+
+    export default async function handler(
+      req: NextApiRequest,
+      res: NextApiResponse<ApiResponse>
+    ) {
+      if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" });
+      }
+
+      try {
+        const { prompt, negative } = req.body as { prompt?: string; negative?: string };
+        if (!prompt) return res.status(400).json({ error: "prompt is required" });
+
+        const { imageUrl, filename, imageBuffer } = await generateAvatar({
+          positivePrompt: prompt,
+          negativePrompt: negative,
+        });
+
+        return res.status(200).json({
+          success: true,
+          filename,
+          imageUrl,
+          imageBase64: imageBuffer.toString("base64"),
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Generation failed";
+        console.error("[generate-avatar] Error:", err);
+        return res.status(500).json({ error: message });
+      }
+    }
+
+REMOVE the `export const config = { api: { bodyParser: false } }` block — we want
+the default JSON body parser now.
+
+OPTIONAL CLEANUP: `npm uninstall formidable @types/formidable` (no longer used).
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PHASE 2 — FRONTEND: remove photo upload from the flow
+═══════════════════════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/lib/nano-banana.ts
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES: drop dataUrlToFile, drop the imageBase64 param, send JSON.
+
+REPLACE the whole file with:
+
+    export type GenerationResult =
+      | { ok: true; imageUrl: string }
+      | { ok: false; error: string };
+
+    export async function generateAvatar(prompt: string): Promise<GenerationResult> {
+      try {
+        const res = await fetch("/api/generate-avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+        });
+
+        const data = await res.json() as { imageUrl?: string; error?: string };
+
+        if (!res.ok || !data.imageUrl) {
+          return { ok: false, error: data.error ?? "Unknown error" };
+        }
+        return { ok: true, imageUrl: data.imageUrl };
+      } catch (err) {
+        return { ok: false, error: err instanceof Error ? err.message : "Network error" };
+      }
+    }
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/components/PhotoUpload.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+DELETE this file entirely. No longer needed.
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/pages/quiz.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Remove the "upload" phase — start directly at "quiz"
+  B. Remove `photo` state, `handlePhoto`, `handleSkipPhoto`
+  C. Remove PhotoUpload import + render block
+  D. Change `Phase = "upload" | "quiz" | "loading"` → `Phase = "quiz" | "loading"`
+  E. Initial state: setPhase("quiz")  (or remove phase, just toggle isLoading)
+  F. Update `generateAvatar(profile.prompt, photo)` → `generateAvatar(profile.prompt)`
+  G. Update localStorage payload — drop `photo` field entirely
+
+After this phase, ALSO update once the animal question lands (Phase 3) — see below.
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/pages/result.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES: the `StoredResult` type currently has `photo: string | null`. Remove it.
+  - Update `StoredResult` to drop the `photo` field
+  - Remove any code path that falls back to displaying `photo` when no AI image exists
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/components/AvatarCard.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES: remove the photo fallback rendering. Display order becomes:
+  generatedImageUrl → emoji fallback (no more photo in between)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+PHASE 3 — QUIZ: add "What's your favourite animal?" as question #9
+═══════════════════════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/data/questions.json
+──────────────────────────────────────────────────────────────────────────────
+
+ADD a 9th question at the end. It uses a new shape — `inputType: "text"` instead
+of an options array. Example:
+
+    {
+      "id": "favourite_animal",
+      "question": "What's your favourite animal?",
+      "subtitle": "the spirit creature you'll become",
+      "inputType": "text",
+      "placeholder": "e.g. red panda, otter, owl…",
+      "options": []
+    }
+
+Keep `options: []` so the existing array shape stays valid; the renderer branches
+on `inputType` to skip the options and show an input.
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/data/questions.ts
+──────────────────────────────────────────────────────────────────────────────
+
+EXTEND the Question type:
+
+    export type Question = {
+      id: string;
+      question: string;
+      subtitle?: string;
+      options: Option[];
+      inputType?: "text";        // NEW
+      placeholder?: string;      // NEW
+    };
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/components/QuestionCard.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Add a second prop signature for input questions:
+       onAnswer: (option: Option) => void
+       onTextAnswer: (text: string) => void   // NEW
+  B. When `question.inputType === "text"`, render <input> + "Continue" button
+     instead of the option grid.
+  C. Local state: `const [value, setValue] = useState("")`
+  D. On submit, call `onTextAnswer(value.trim())` if non-empty.
+
+Render branch (pseudo):
+
+    if (question.inputType === "text") {
+      return (
+        <div>
+          <h2>{question.question}</h2>
+          <p>{question.subtitle}</p>
+          <input
+            value={value}
+            placeholder={question.placeholder}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            className="w-full rounded-2xl bg-zinc-900 border border-zinc-700 px-4 py-3 text-white"
+          />
+          <button onClick={submit} disabled={!value.trim()}>
+            Continue →
+          </button>
+        </div>
+      );
+    }
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/pages/quiz.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Add state: `const [favouriteAnimal, setFavouriteAnimal] = useState("")`
+  B. Add handler:
+       function handleTextAnswer(text: string) {
+         setFavouriteAnimal(text);
+         if (questionIndex + 1 >= questions.length) setPhase("loading");
+         else setQuestionIndex(i => i + 1);
+       }
+  C. Pass `onTextAnswer={handleTextAnswer}` to <QuestionCard>
+  D. In the useEffect that builds the profile, pass animal:
+       const profile = buildAvatarProfile(answers, favouriteAnimal);
+  E. Save `favouriteAnimal` into the localStorage payload (for the result page).
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/lib/traits.ts
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Update buildAvatarProfile signature:
+       export function buildAvatarProfile(
+         selectedOptions: Option[],
+         favouriteAnimal: string,        // NEW
+       ): AvatarProfile { ... }
+  B. Add `favouriteAnimal: string` to the AvatarProfile type
+  C. Pass animal through to generatePrompt:
+       const prompt = generatePrompt(mergedTraits, archetype, favouriteAnimal);
+  D. Return favouriteAnimal in the profile object
+
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/lib/prompt-generator.ts
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. Add `favouriteAnimal: string` parameter
+  B. Remove the line: "use the facial features from the photo attached and add
+     it to the character" (no photo anymore)
+  C. Make the SUBJECT an anthropomorphic animal wearing the chosen aesthetic
+
+Update signature:
+    export function generatePrompt(
+      traits: MergedTraits,
+      archetype: Archetype,
+      favouriteAnimal: string,
+    ): string
+
+Update the prompt body. Replace this fragment:
+
+    `Subject: Bangalore urban dweller, ${archetype.id} archetype. `
+
+With:
+
+    `Subject: an anthropomorphic ${favouriteAnimal || "cat"} character living in Bangalore, ` +
+    `${archetype.id} archetype, expressive humanoid posture but unmistakably a ${favouriteAnimal || "cat"}, ` +
+    `wearing clothes and using props like a person. ` +
+
+Also remove the "use the facial features from the photo" line near the top.
+The final prompt structure is now:
+
+    Stylized cinematic 3D character portrait, premium animated film aesthetic.
+    Subject: an anthropomorphic {animal} character living in Bangalore,
+      {archetype} archetype, wearing clothes and using props like a person.
+    Aesthetic: {aestheticWords}.
+    Wearing: {fashionWords}.
+    Carrying: {propWords}.
+    Energy: {energyWords}. {tension}
+    Scene: {scene}.
+    Lighting: {lighting}.
+    Weather atmosphere: {weather}.
+    Highly expressive face with subtle exaggerated features…
+
+
+══════════════════════════════════════════════════════════════════════════════
+PHASE 4 — RESULT PAGE: surface the animal
+══════════════════════════════════════════════════════════════════════════════
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/pages/result.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+CHANGES:
+  A. StoredResult now includes `favouriteAnimal: string`
+  B. Optionally show "Your spirit animal: {favouriteAnimal}" somewhere
+
+──────────────────────────────────────────────────────────────────────────────
+FILE: src/components/AvatarCard.tsx
+──────────────────────────────────────────────────────────────────────────────
+
+OPTIONAL: add `favouriteAnimal` as a prop and render it as a small label
+underneath the archetype name.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+EXECUTION ORDER (do it in this order so the app never breaks)
+═══════════════════════════════════════════════════════════════════════════════
+
+  1. comfyui-client.ts      — swap workflow to text-to-image
+  2. generate-avatar.ts API — swap to JSON body
+  3. nano-banana.ts         — send JSON, drop dataUrlToFile
+  4. quiz.tsx               — drop "upload" phase + photo state
+  5. result.tsx + AvatarCard — drop photo references
+  6. Delete PhotoUpload.tsx
+  7. questions.json         — add the animal question
+  8. questions.ts           — extend Question type
+  9. QuestionCard.tsx       — render input branch + onTextAnswer prop
+  10. quiz.tsx (again)      — add favouriteAnimal state + handler
+  11. traits.ts             — thread favouriteAnimal through buildAvatarProfile
+  12. prompt-generator.ts   — animal as subject, drop "use facial features" line
+  13. Run: npx tsc --noEmit  → must be clean
+  14. Run: npm run dev       → click through end-to-end
+
+
+═══════════════════════════════════════════════════════════════════════════════
+VERIFICATION CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+  [ ] No reference to "photo", "imageBase64", "PhotoUpload" anywhere in src/
+  [ ] tsc --noEmit passes
+  [ ] Quiz starts at question 1 (no upload step)
+  [ ] Question 9 shows a text input + Continue button
+  [ ] Pressing Enter on the input advances the quiz
+  [ ] Empty input keeps the button disabled
+  [ ] API request payload is JSON: { prompt: "...", negative?: "..." }
+  [ ] ComfyUI workflow uses EmptyLatentImage (node "4"), not LoadImage
+  [ ] Generated image shows the chosen animal as the subject
+  [ ] Result page no longer references the user's uploaded photo
+
+
+═══════════════════════════════════════════════════════════════════════════════
+NOTES / GOTCHAS
+═══════════════════════════════════════════════════════════════════════════════
+
+  • Animal sanitization: trim() the input and cap at ~30 chars before injecting
+    into the prompt. Reject empty after trim.
+  • If `favouriteAnimal` is empty for any reason, default the prompt to "cat"
+    rather than producing a malformed prompt.
+  • Text-to-image at 1024×1024 takes ~20–40s on most consumer GPUs — the
+    loading screen's existing 4-stage animation already covers this.
+  • Once formidable is removed, double-check no other route imports it before
+    uninstalling.
